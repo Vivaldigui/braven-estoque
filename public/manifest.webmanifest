@@ -1,7 +1,7 @@
 {
   "name": "Estoque BRAVEN",
   "short_name": "Estoque",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f3eee6",
   "theme_color": "#171717",

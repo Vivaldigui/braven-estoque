@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
+<script>if (!location.pathname.endsWith("/")) location.replace(location.pathname + "/" + location.search);</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#171717">
 <meta name="robots" content="noindex">
@@ -191,7 +192,7 @@ button.stat{cursor:pointer}
       </div>
       <div class="card">
         <h2>Relatórios</h2>
-        <a class="btn line" href="/api/estoque.csv" download>Baixar planilha do estoque</a>
+        <a class="btn line" href="api/estoque.csv" download>Baixar planilha do estoque</a>
       </div>
       <div class="card">
         <h2>Minha conta</h2>
@@ -218,7 +219,7 @@ let filtro = "todos";
 async function call(method, url, data) {
   const r = await fetch(url, { method, headers: data ? { "Content-Type": "application/json" } : {}, body: data ? JSON.stringify(data) : undefined });
   const j = await r.json().catch(() => ({}));
-  if (r.status === 401 && url !== "/api/login") { showLogin(); throw new Error(j.erro || "Faça login."); }
+  if (r.status === 401 && url !== "api/login") { showLogin(); throw new Error(j.erro || "Faça login."); }
   if (!r.ok) throw new Error(j.erro || "Algo deu errado. Tente de novo.");
   return j;
 }
@@ -231,14 +232,14 @@ $("#loginForm").addEventListener("submit", async e => {
   const f = e.target, btn = $("button", f);
   btn.disabled = true; $("#loginErr").textContent = "";
   try {
-    await call("POST", "/api/login", { user: f.user.value, pass: f.pass.value });
+    await call("POST", "api/login", { user: f.user.value, pass: f.pass.value });
     f.pass.value = "";
     await boot();
   } catch (err) { $("#loginErr").textContent = err.message; }
   btn.disabled = false;
 });
 async function boot() {
-  try { setState(await call("GET", "/api/state")); }
+  try { setState(await call("GET", "api/state")); }
   catch { return showLogin(); }
   $("#loginView").hidden = true; $("#appView").hidden = false;
   $("#hello").textContent = "Olá, " + S.me.nome;
@@ -351,7 +352,7 @@ function moveSheet(vid, tipo) {
   $("#ok", sh).onclick = async () => {
     const btn = $("#ok", sh); btn.disabled = true;
     try {
-      const j = await call("POST", "/api/move", { variantId: vid, tipo, qtd: parseInt(n.value) || 0, obs: $("#obs", sh).value });
+      const j = await call("POST", "api/move", { variantId: vid, tipo, qtd: parseInt(n.value) || 0, obs: $("#obs", sh).value });
       setState(j); closeSheet();
       const mv = j.moves[0], after = findV(vid).v.qtd;
       const msg = tipo === "venda" ? `Baixa feita! ${p.nome} ${v.nome}: agora tem <b>${after}</b>.`
@@ -375,7 +376,7 @@ function toast(html, undoId) {
   toastT = setTimeout(() => t.remove(), 6000);
 }
 async function undo(id) {
-  try { setState(await call("POST", `/api/moves/${id}/desfazer`)); toast("Lançamento desfeito."); }
+  try { setState(await call("POST", `api/moves/${id}/desfazer`)); toast("Lançamento desfeito."); }
   catch (err) { toast(esc(err.message)); }
 }
 
@@ -449,14 +450,14 @@ function prodSheet(id) {
       variantes: [...vs.children].map(r => ({ id: r.dataset.id || undefined, nome: $("input", r).value })),
     };
     try {
-      setState(p ? await call("PUT", `/api/products/${p.id}`, data) : await call("POST", "/api/products", { ...data, variantes: data.variantes.map(v => v.nome) }));
+      setState(p ? await call("PUT", `api/products/${p.id}`, data) : await call("POST", "api/products", { ...data, variantes: data.variantes.map(v => v.nome) }));
       closeSheet(); toast(p ? "Produto atualizado." : "Produto cadastrado.");
     } catch (err) { $("#pErr", sh).textContent = err.message; }
   };
   $("#del", sh) && ($("#del", sh).onclick = async () => {
     const tot = p.variantes.reduce((a, v) => a + v.qtd, 0);
     if (!confirm(`Apagar "${p.nome} · ${p.cor}"?${tot ? ` Ele ainda tem ${tot} peças em estoque.` : ""} O histórico de vendas continua salvo.`)) return;
-    try { setState(await call("DELETE", `/api/products/${p.id}`)); closeSheet(); toast("Produto apagado."); }
+    try { setState(await call("DELETE", `api/products/${p.id}`)); closeSheet(); toast("Produto apagado."); }
     catch (err) { $("#pErr", sh).textContent = err.message; }
   });
 }
@@ -471,7 +472,7 @@ $("#chgPass").onclick = () => {
     <p class="err" id="e"></p>
     <button class="btn" id="ok">Salvar nova senha</button>`);
   $("#ok", sh).onclick = async () => {
-    try { await call("POST", "/api/senha", { atual: $("#a", sh).value, nova: $("#b", sh).value }); closeSheet(); toast("Senha trocada."); }
+    try { await call("POST", "api/senha", { atual: $("#a", sh).value, nova: $("#b", sh).value }); closeSheet(); toast("Senha trocada."); }
     catch (err) { $("#e", sh).textContent = err.message; }
   };
 };
@@ -488,20 +489,20 @@ $("#users").onclick = async () => {
     <p class="err" id="ue"></p>
     <button class="btn green" id="uadd">Criar acesso</button>`);
   const draw = list => $("#ul", sh).innerHTML = list.map(u => `<div class="row"><span><b>${esc(u.nome)}</b> <small style="color:var(--muted)">@${esc(u.user)}</small></span>${u.user === S.me.user ? `<small style="color:var(--muted)">você</small>` : `<button class="link" data-rm="${esc(u.user)}" style="color:var(--out)">Remover</button>`}</div>`).join("");
-  draw(await call("GET", "/api/usuarios"));
+  draw(await call("GET", "api/usuarios"));
   $("#ul", sh).addEventListener("click", async e => {
     const b = e.target.closest("[data-rm]");
-    if (b && confirm(`Tirar o acesso de @${b.dataset.rm}?`)) draw(await call("DELETE", `/api/usuarios/${b.dataset.rm}`));
+    if (b && confirm(`Tirar o acesso de @${b.dataset.rm}?`)) draw(await call("DELETE", `api/usuarios/${b.dataset.rm}`));
   });
   $("#uadd", sh).onclick = async () => {
     try {
-      draw(await call("POST", "/api/usuarios", { nome: $("#un", sh).value, user: $("#uu", sh).value, senha: $("#up", sh).value }));
+      draw(await call("POST", "api/usuarios", { nome: $("#un", sh).value, user: $("#uu", sh).value, senha: $("#up", sh).value }));
       ["#un", "#uu", "#up"].forEach(s => $(s, sh).value = ""); $("#ue", sh).textContent = "";
       toast("Acesso criado.");
     } catch (err) { $("#ue", sh).textContent = err.message; }
   };
 };
-$("#logout").onclick = async () => { await call("POST", "/api/logout").catch(() => {}); showLogin(); };
+$("#logout").onclick = async () => { await call("POST", "api/logout").catch(() => {}); showLogin(); };
 
 boot();
 </script>

@@ -10,6 +10,7 @@ const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 const PUBLIC = path.join(__dirname, "public");
 const SESSION_DAYS = 30;
+const BASE_PATH = (process.env.BASE_PATH || "").replace(/\/+$/, ""); // ex.: /estoque
 
 /* ---------------- banco (arquivo JSON) ---------------- */
 const uid = () => crypto.randomBytes(6).toString("hex");
@@ -299,6 +300,11 @@ function staticFile(res, pathname) {
 load();
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://x");
+  // publicado em sejabraven.com.br/estoque: aceita com ou sem o prefixo (caso o proxy já tenha tirado)
+  if (BASE_PATH && url.pathname === BASE_PATH) {
+    res.writeHead(301, { Location: BASE_PATH + "/" + url.search }); return res.end();
+  }
+  if (BASE_PATH && url.pathname.startsWith(BASE_PATH + "/")) url.pathname = url.pathname.slice(BASE_PATH.length);
   try {
     if (url.pathname.startsWith("/api/")) await api(req, res, url);
     else staticFile(res, decodeURIComponent(url.pathname));
