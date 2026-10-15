@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171717">
+<meta name="robots" content="noindex">
+<title>Estoque BRAVEN</title>
+<link rel="icon" href="aguia.png">
+<link rel="apple-touch-icon" href="aguia.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f3eee6; --paper:#ebe4d8; --ink:#171717; --muted:#6b665e; --line:#d9d1c3;
+  --sage:#97a88a; --olive:#3d4633; --terra:#b4562e; --white:#fffdf9;
+  --ok:#3f7a43; --ok-bg:#e3eedd; --low:#9a6a12; --low-bg:#f6ead0; --out:#b4372e; --out-bg:#f7dfdb;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--cream);color:var(--ink);font:400 16px/1.45 Montserrat,system-ui,sans-serif;min-height:100dvh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.display{font-family:"Archivo Black",Impact,sans-serif;font-weight:400;letter-spacing:.01em}
+.eagle{display:inline-block;background:currentColor;-webkit-mask:url(aguia.png) center/contain no-repeat;mask:url(aguia.png) center/contain no-repeat}
+[hidden]{display:none!important}
+
+/* ---------- login ---------- */
+.login{min-height:100dvh;display:grid;place-items:center;padding:24px 16px;background:var(--sage)}
+.login form{width:100%;max-width:360px;background:var(--white);border-radius:20px;padding:32px 24px;box-shadow:0 20px 50px rgba(30,35,25,.25)}
+.login .eagle{width:56px;height:46px;color:var(--olive);margin:0 auto 10px;display:block}
+.login h1{text-align:center;font-size:30px;line-height:1}
+.login p.sub{text-align:center;color:var(--muted);font-size:14px;margin:6px 0 24px}
+
+.field{display:block;margin-bottom:14px}
+.field span{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.field input,.field select{width:100%;height:50px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;background:var(--white);font-size:16px}
+.field input:focus,.field select:focus{outline:none;border-color:var(--ink)}
+.err{color:var(--out);font-size:14px;font-weight:600;min-height:20px;margin:-4px 0 10px}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:52px;border-radius:999px;font-weight:700;font-size:16px;background:var(--ink);color:var(--white);transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn:disabled{opacity:.5}
+.btn.line{background:none;border:2px solid var(--ink);color:var(--ink)}
+.btn.terra{background:var(--terra)}
+.btn.green{background:var(--olive)}
+.btn.danger{background:none;color:var(--out);border:2px solid var(--out-bg)}
+
+/* ---------- app ---------- */
+.top{position:sticky;top:0;z-index:20;background:var(--ink);color:var(--white);padding:0 16px;padding-top:env(safe-area-inset-top)}
+.top .in{max-width:760px;margin:0 auto;height:58px;display:flex;align-items:center;gap:10px}
+.top .eagle{width:30px;height:25px;color:var(--sage)}
+.top b{font-size:19px}
+.top small{margin-left:auto;font-size:13px;opacity:.75}
+main{max-width:760px;margin:0 auto;padding:16px 16px 110px}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:left}
+.stat b{display:block;font:400 26px/1 "Archivo Black"}
+.stat span{font-size:12px;color:var(--muted);font-weight:600}
+button.stat{cursor:pointer}
+.stat.on{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.stat.low b{color:var(--low)} .stat.out b{color:var(--out)}
+
+.search{position:relative;margin-bottom:14px}
+.search input{width:100%;height:48px;border-radius:999px;border:1.5px solid var(--line);background:var(--white);padding:0 16px 0 44px;font-size:16px}
+.search input:focus{outline:none;border-color:var(--ink)}
+.search svg{position:absolute;left:16px;top:14px;width:20px;height:20px;color:var(--muted)}
+
+.group-title{font:400 14px/1 "Archivo Black";letter-spacing:.06em;text-transform:uppercase;margin:22px 0 10px;padding-left:10px;border-left:4px solid var(--ink)}
+.prod{background:var(--white);border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.prod-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.prod-head h3{font-size:16px;font-weight:700;line-height:1.2}
+.prod-head p{font-size:13px;color:var(--muted)}
+.prod-head .tot{margin-left:auto;text-align:right;font-size:12px;color:var(--muted);white-space:nowrap}
+.prod-head .tot b{display:block;font-size:18px;color:var(--ink)}
+.var{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 14px;min-height:56px}
+.var+.var{border-top:1px dashed var(--line)}
+.var .nm{flex:1;font-weight:600;font-size:15px}
+.qty{min-width:46px;height:32px;padding:0 10px;border-radius:999px;display:grid;place-items:center;font-weight:700;font-size:16px;background:var(--ok-bg);color:var(--ok)}
+.qty.low{background:var(--low-bg);color:var(--low)}
+.qty.out{background:var(--out-bg);color:var(--out)}
+.act{height:40px;padding:0 14px;border-radius:999px;font-weight:700;font-size:14px}
+.act.sell{background:var(--terra);color:#fff}
+.act.sell:disabled{background:var(--paper);color:var(--muted)}
+.act.add{width:40px;padding:0;border:1.5px solid var(--line);font-size:20px;line-height:1}
+.empty{text-align:center;color:var(--muted);padding:40px 10px}
+
+/* histórico */
+.mv{display:flex;gap:12px;align-items:flex-start;background:var(--white);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.mv .ic{flex:none;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:15px}
+.mv .ic.venda{background:var(--out-bg);color:var(--out)}
+.mv .ic.entrada{background:var(--ok-bg);color:var(--ok)}
+.mv .ic.ajuste{background:var(--paper);color:var(--muted)}
+.mv .tx{flex:1;min-width:0}
+.mv .tx b{font-size:15px}
+.mv .tx p{font-size:13px;color:var(--muted)}
+.mv .tx .obs{color:var(--ink);font-style:italic}
+.mv.undone{opacity:.5}.mv.undone b{text-decoration:line-through}
+.mv .und{font-size:13px;font-weight:700;color:var(--terra);padding:6px 4px;white-space:nowrap}
+.day{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:18px 4px 8px}
+
+/* mais */
+.card{background:var(--white);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-bottom:12px}
+.card h2{font-size:17px;font-weight:700;margin-bottom:12px}
+.card .row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+.card .row:first-of-type{border-top:0}
+.link{font-weight:700;color:var(--terra);font-size:14px;padding:6px 0}
+.list-btn{display:flex;align-items:center;justify-content:space-between;width:100%;padding:14px 0;border-top:1px solid var(--line);font-weight:600;text-align:left}
+.list-btn:first-of-type{border-top:0}
+.list-btn small{color:var(--muted);font-weight:500}
+
+/* nav inferior */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--white);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabs .in{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr)}
+.tabs button{height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;color:var(--muted)}
+.tabs button svg{width:24px;height:24px}
+.tabs button[aria-current="page"]{color:var(--ink)}
+
+/* folha (bottom sheet) */
+.veil{position:fixed;inset:0;z-index:40;background:rgba(23,23,23,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .15s}
+.sheet{width:100%;max-width:520px;max-height:92dvh;overflow:auto;background:var(--cream);border-radius:22px 22px 0 0;padding:10px 18px calc(22px + env(safe-area-inset-bottom));animation:up .2s ease-out}
+@media (min-width:600px){.veil{align-items:center}.sheet{border-radius:22px}}
+.grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 14px}
+.sheet h2{font-size:20px;line-height:1.2}
+.sheet .sub{color:var(--muted);font-size:14px;margin-bottom:16px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--paper);border-radius:999px;padding:4px;margin-bottom:18px}
+.seg button{height:42px;border-radius:999px;font-weight:700;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--white);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.stepper{display:flex;align-items:center;justify-content:center;gap:18px;margin:6px 0 8px}
+.stepper button{width:58px;height:58px;border-radius:50%;background:var(--white);border:1.5px solid var(--line);font-size:28px;font-weight:600}
+.stepper input{width:100px;height:64px;text-align:center;font:400 40px/1 "Archivo Black";border:0;background:none}
+.stepper input:focus{outline:none}
+.preview{text-align:center;font-size:15px;margin-bottom:18px;color:var(--muted)}
+.preview b{color:var(--ink)}
+.sheet .btn+.btn{margin-top:10px}
+.vrow{display:flex;gap:8px;margin-bottom:8px}
+.vrow input{flex:1;height:46px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;background:var(--white);font-size:16px}
+.vrow button{width:46px;border-radius:10px;border:1.5px solid var(--line);font-size:20px;color:var(--muted)}
+.vrow .q{font-size:12px;color:var(--muted);align-self:center;width:48px;text-align:center}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.toast{position:fixed;left:50%;bottom:84px;z-index:60;transform:translateX(-50%);width:calc(100% - 32px);max-width:460px;background:var(--ink);color:var(--white);border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:15px}
+.toast span{flex:1}
+.toast button{color:var(--sage);font-weight:700}
+.toast{animation:fade .2s}
+@keyframes up{from{transform:translateY(30px);opacity:0}}
+@keyframes fade{from{opacity:0}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section class="login" id="loginView" hidden>
+  <form id="loginForm" autocomplete="on">
+    <i class="eagle"></i>
+    <h1 class="display">BRAVEN</h1>
+    <p class="sub">Controle de estoque</p>
+    <label class="field"><span>Usuário</span><input name="user" autocomplete="username" autocapitalize="none" required></label>
+    <label class="field"><span>Senha</span><input name="pass" type="password" autocomplete="current-password" required></label>
+    <p class="err" id="loginErr"></p>
+    <button class="btn" type="submit">Entrar</button>
+  </form>
+</section>
+
+<!-- APP -->
+<div id="appView" hidden>
+  <header class="top"><div class="in"><i class="eagle"></i><b class="display">ESTOQUE</b><small id="hello"></small></div></header>
+
+  <main>
+    <section id="tab-estoque">
+      <div class="stats" id="stats"></div>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" type="search" placeholder="Buscar produto, cor ou tamanho">
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <section id="tab-historico" hidden>
+      <div id="hist"></div>
+    </section>
+
+    <section id="tab-mais" hidden>
+      <div class="card">
+        <h2>Produtos</h2>
+        <button class="btn green" id="newProd">+ Cadastrar produto novo</button>
+        <p style="font-size:13px;color:var(--muted);margin-top:10px">Para editar ou apagar um produto, toque no nome dele na tela de estoque.</p>
+      </div>
+      <div class="card">
+        <h2>Relatórios</h2>
+        <a class="btn line" href="/api/estoque.csv" download>Baixar planilha do estoque</a>
+      </div>
+      <div class="card">
+        <h2>Minha conta</h2>
+        <button class="list-btn" id="chgPass">Trocar minha senha <small>›</small></button>
+        <button class="list-btn" id="users">Quem tem acesso <small>›</small></button>
+        <button class="list-btn" id="logout" style="color:var(--out)">Sair</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabs"><div class="in">
+    <button data-tab="estoque" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>Estoque</button>
+    <button data-tab="historico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Histórico</button>
+    <button data-tab="mais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Mais</button>
+  </div></nav>
+</div>
+
+<script>
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+let S = { products: [], moves: [], me: null };
+let filtro = "todos";
+
+async function call(method, url, data) {
+  const r = await fetch(url, { method, headers: data ? { "Content-Type": "application/json" } : {}, body: data ? JSON.stringify(data) : undefined });
+  const j = await r.json().catch(() => ({}));
+  if (r.status === 401 && url !== "/api/login") { showLogin(); throw new Error(j.erro || "Faça login."); }
+  if (!r.ok) throw new Error(j.erro || "Algo deu errado. Tente de novo.");
+  return j;
+}
+function setState(j) { S.products = j.products; S.moves = j.moves; if (j.me) S.me = j.me; render(); }
+
+/* ---------- login ---------- */
+function showLogin() { $("#appView").hidden = true; $("#loginView").hidden = false; closeSheet(); }
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = e.target, btn = $("button", f);
+  btn.disabled = true; $("#loginErr").textContent = "";
+  try {
+    await call("POST", "/api/login", { user: f.user.value, pass: f.pass.value });
+    f.pass.value = "";
+    await boot();
+  } catch (err) { $("#loginErr").textContent = err.message; }
+  btn.disabled = false;
+});
+async function boot() {
+  try { setState(await call("GET", "/api/state")); }
+  catch { return showLogin(); }
+  $("#loginView").hidden = true; $("#appView").hidden = false;
+  $("#hello").textContent = "Olá, " + S.me.nome;
+}
+
+/* ---------- abas ---------- */
+document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll(".tabs button").forEach(x => x === b ? x.setAttribute("aria-current", "page") : x.removeAttribute("aria-current"));
+  ["estoque", "historico", "mais"].forEach(t => $("#tab-" + t).hidden = t !== b.dataset.tab);
+  scrollTo(0, 0);
+}));
+
+/* ---------- estoque ---------- */
+const nivel = (q, min) => q <= 0 ? "out" : q <= min ? "low" : "";
+function render() {
+  const all = S.products.flatMap(p => p.variantes.map(v => ({ p, v })));
+  const pecas = all.reduce((a, x) => a + x.v.qtd, 0);
+  const falta = all.filter(x => x.v.qtd <= 0).length;
+  const baixo = all.filter(x => x.v.qtd > 0 && x.v.qtd <= x.p.min).length;
+  $("#stats").innerHTML = `
+    <button class="stat ${filtro === "todos" ? "on" : ""}" data-f="todos"><b>${pecas}</b><span>peças no total</span></button>
+    <button class="stat low ${filtro === "baixo" ? "on" : ""}" data-f="baixo"><b>${baixo}</b><span>acabando</span></button>
+    <button class="stat out ${filtro === "falta" ? "on" : ""}" data-f="falta"><b>${falta}</b><span>esgotados</span></button>`;
+
+  const q = $("#q").value.trim().toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+  const groups = {};
+  for (const p of S.products) {
+    const hay = norm(`${p.nome} ${p.cor} ${p.grupo}`);
+    let vars = p.variantes.filter(v => !q || hay.includes(q) || norm(v.nome).includes(q));
+    if (filtro === "baixo") vars = vars.filter(v => v.qtd > 0 && v.qtd <= p.min);
+    if (filtro === "falta") vars = vars.filter(v => v.qtd <= 0);
+    if (!vars.length) continue;
+    (groups[p.grupo] ||= []).push({ p, vars });
+  }
+  const html = Object.entries(groups).map(([g, items]) => `<h2 class="group-title">${esc(g)}</h2>` + items.map(({ p, vars }) => `
+    <article class="prod">
+      <button class="prod-head" style="width:100%;text-align:left" data-edit="${p.id}">
+        <div><h3>${esc(p.nome)}</h3><p>${esc(p.cor)}</p></div>
+        <div class="tot"><b>${p.variantes.reduce((a, v) => a + v.qtd, 0)}</b>peças</div>
+      </button>
+      ${vars.map(v => `<div class="var">
+        <span class="nm">${esc(v.nome)}</span>
+        <span class="qty ${nivel(v.qtd, p.min)}">${v.qtd}</span>
+        <button class="act add" data-move="entrada" data-v="${v.id}" aria-label="Adicionar ao estoque">+</button>
+        <button class="act sell" data-move="venda" data-v="${v.id}" ${v.qtd <= 0 ? "disabled" : ""}>Vendi</button>
+      </div>`).join("")}
+    </article>`).join("")).join("");
+  $("#list").innerHTML = html || `<p class="empty">${filtro === "todos" ? "Nenhum produto encontrado." : filtro === "baixo" ? "Nada acabando. 👍" : "Nada esgotado. 👍"}</p>`;
+  renderHist();
+}
+$("#q").addEventListener("input", render);
+$("#stats").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (b) { filtro = b.dataset.f === filtro ? "todos" : b.dataset.f; render(); } });
+$("#list").addEventListener("click", e => {
+  const m = e.target.closest("[data-move]"); if (m) return moveSheet(m.dataset.v, m.dataset.move);
+  const ed = e.target.closest("[data-edit]"); if (ed) return prodSheet(ed.dataset.edit);
+});
+function findV(id) { for (const p of S.products) { const v = p.variantes.find(x => x.id === id); if (v) return { p, v }; } }
+
+/* ---------- folha genérica ---------- */
+function openSheet(html) {
+  closeSheet();
+  const veil = document.createElement("div");
+  veil.className = "veil"; veil.id = "veil";
+  veil.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div>`;
+  veil.addEventListener("click", e => { if (e.target === veil) closeSheet(); });
+  document.body.appendChild(veil);
+  document.body.style.overflow = "hidden";
+  return $(".sheet", veil);
+}
+function closeSheet() { $("#veil")?.remove(); document.body.style.overflow = ""; }
+addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+
+/* ---------- venda / entrada / contagem ---------- */
+function moveSheet(vid, tipo) {
+  const { p, v } = findV(vid);
+  const sh = openSheet(`
+    <h2>${esc(p.nome)}</h2>
+    <p class="sub">${esc(p.cor)} · <b>${esc(v.nome)}</b> · tem ${v.qtd} agora</p>
+    <div class="seg">
+      <button data-t="venda">Vendi</button><button data-t="entrada">Chegou</button><button data-t="ajuste">Contei</button>
+    </div>
+    <div class="stepper"><button data-d="-1" aria-label="Menos">−</button><input id="n" inputmode="numeric" pattern="[0-9]*"><button data-d="1" aria-label="Mais">+</button></div>
+    <p class="preview" id="pv"></p>
+    <label class="field" id="obsF"><span id="obsL"></span><input id="obs" maxlength="120"></label>
+    <p class="err" id="mvErr"></p>
+    <button class="btn" id="ok"></button>
+    <button class="btn line" id="cancel">Cancelar</button>`);
+  const n = $("#n", sh);
+  const set = t => {
+    tipo = t;
+    sh.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.t === t));
+    n.value = t === "ajuste" ? v.qtd : 1;
+    $("#obsL", sh).textContent = t === "venda" ? "Cliente ou observação (opcional)" : "Observação (opcional)";
+    $("#obs", sh).placeholder = t === "venda" ? "Ex.: Maria, Pix" : t === "entrada" ? "Ex.: lote da estamparia" : "Ex.: contagem do mês";
+    $("#ok", sh).className = "btn " + (t === "venda" ? "terra" : t === "entrada" ? "green" : "");
+    upd();
+  };
+  const upd = () => {
+    const q = Math.max(0, parseInt(n.value) || 0);
+    const fica = tipo === "venda" ? v.qtd - q : tipo === "entrada" ? v.qtd + q : q;
+    $("#pv", sh).innerHTML = fica < 0 ? `<b style="color:var(--out)">Só tem ${v.qtd} em estoque</b>` : `Vai ficar com <b>${fica}</b> ${fica === 1 ? "peça" : "peças"}`;
+    $("#ok", sh).textContent = tipo === "venda" ? `Dar baixa de ${q}` : tipo === "entrada" ? `Adicionar ${q}` : `Salvar: tenho ${q}`;
+    $("#ok", sh).disabled = fica < 0 || (tipo !== "ajuste" && q < 1);
+  };
+  sh.querySelector(".seg").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (b) set(b.dataset.t); });
+  sh.querySelector(".stepper").addEventListener("click", e => { const b = e.target.closest("[data-d]"); if (b) { n.value = Math.max(0, (parseInt(n.value) || 0) + +b.dataset.d); upd(); } });
+  n.addEventListener("input", () => { n.value = n.value.replace(/\D/g, ""); upd(); });
+  $("#cancel", sh).onclick = closeSheet;
+  $("#ok", sh).onclick = async () => {
+    const btn = $("#ok", sh); btn.disabled = true;
+    try {
+      const j = await call("POST", "/api/move", { variantId: vid, tipo, qtd: parseInt(n.value) || 0, obs: $("#obs", sh).value });
+      setState(j); closeSheet();
+      const mv = j.moves[0], after = findV(vid).v.qtd;
+      const msg = tipo === "venda" ? `Baixa feita! ${p.nome} ${v.nome}: agora tem <b>${after}</b>.`
+        : tipo === "entrada" ? `Adicionado! ${p.nome} ${v.nome}: agora tem <b>${after}</b>.`
+        : `Contagem salva: ${p.nome} ${v.nome} com <b>${after}</b>.`;
+      toast(msg, mv && mv.variantId === vid ? mv.id : null);
+    } catch (err) { $("#mvErr", sh).textContent = err.message; btn.disabled = false; }
+  };
+  set(tipo);
+}
+
+/* ---------- aviso com desfazer ---------- */
+let toastT;
+function toast(html, undoId) {
+  $(".toast")?.remove(); clearTimeout(toastT);
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.innerHTML = `<span>${html}</span>${undoId ? `<button>Desfazer</button>` : ""}`;
+  if (undoId) $("button", t).onclick = () => { t.remove(); undo(undoId); };
+  document.body.appendChild(t);
+  toastT = setTimeout(() => t.remove(), 6000);
+}
+async function undo(id) {
+  try { setState(await call("POST", `/api/moves/${id}/desfazer`)); toast("Lançamento desfeito."); }
+  catch (err) { toast(esc(err.message)); }
+}
+
+/* ---------- histórico ---------- */
+function renderHist() {
+  if (!S.moves.length) { $("#hist").innerHTML = `<p class="empty">Nenhuma venda ou entrada ainda.<br>Quando você der baixa em uma peça, ela aparece aqui.</p>`; return; }
+  const hoje = new Date().toDateString(), ontem = new Date(Date.now() - 864e5).toDateString();
+  let lastDay = "", html = "";
+  // resumo de vendas de hoje
+  const vHoje = S.moves.filter(m => m.tipo === "venda" && !m.desfeito && new Date(m.ts).toDateString() === hoje).reduce((a, m) => a - m.delta, 0);
+  html += `<div class="stats" style="grid-template-columns:1fr"><div class="stat"><b>${vHoje}</b><span>${vHoje === 1 ? "peça vendida" : "peças vendidas"} hoje</span></div></div>`;
+  for (const m of S.moves) {
+    const d = new Date(m.ts), ds = d.toDateString();
+    if (ds !== lastDay) {
+      lastDay = ds;
+      html += `<p class="day">${ds === hoje ? "Hoje" : ds === ontem ? "Ontem" : d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "2-digit" })}</p>`;
+    }
+    const label = m.tipo === "venda" ? `Vendeu ${-m.delta}` : m.tipo === "entrada" ? `Chegaram ${m.delta}` : `Contagem (${m.delta > 0 ? "+" : ""}${m.delta})`;
+    const sym = m.tipo === "venda" ? "−" + (-m.delta) : m.tipo === "entrada" ? "+" + m.delta : "=";
+    html += `<div class="mv ${m.desfeito ? "undone" : ""}">
+      <span class="ic ${m.tipo}">${sym}</span>
+      <div class="tx"><b>${label} · ${esc(m.variante)}</b>
+        <p>${esc(m.produto)}</p>
+        ${m.obs ? `<p class="obs">“${esc(m.obs)}”</p>` : ""}
+        <p>${d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} · ${esc(m.por)} · ficou ${m.saldo}${m.desfeito ? ` · desfeito por ${esc(m.desfeito.por)}` : ""}</p>
+      </div>
+      ${m.desfeito ? "" : `<button class="und" data-undo="${m.id}">Desfazer</button>`}
+    </div>`;
+  }
+  $("#hist").innerHTML = html;
+}
+$("#hist").addEventListener("click", e => {
+  const b = e.target.closest("[data-undo]");
+  if (b && confirm("Desfazer esse lançamento? O estoque volta ao que era antes.")) undo(b.dataset.undo);
+});
+
+/* ---------- cadastro / edição de produto ---------- */
+function prodSheet(id) {
+  const p = id ? S.products.find(x => x.id === id) : null;
+  const grupos = [...new Set(S.products.map(x => x.grupo))];
+  const sh = openSheet(`
+    <h2>${p ? "Editar produto" : "Produto novo"}</h2>
+    <p class="sub">${p ? "Mude nome, cor, tamanhos ou o aviso de estoque baixo." : "Ele começa com estoque zero. Depois é só tocar no + para adicionar as peças."}</p>
+    <label class="field"><span>Nome</span><input id="pn" value="${esc(p?.nome)}" placeholder="Ex.: CORAGEM."></label>
+    <label class="field"><span>Cor</span><input id="pc" value="${esc(p?.cor)}" placeholder="Ex.: Terracota estonado"></label>
+    <div class="two">
+      <label class="field"><span>Categoria</span><input id="pg" list="grupos" value="${esc(p?.grupo)}" placeholder="Ex.: Bonés"></label>
+      <label class="field"><span>Avisar quando tiver</span><input id="pm" inputmode="numeric" value="${p?.min ?? 2}"></label>
+    </div>
+    <datalist id="grupos">${grupos.map(g => `<option value="${esc(g)}">`).join("")}</datalist>
+    <p style="font-size:13px;font-weight:600;margin:4px 0 8px">Tamanhos / modelos</p>
+    <div id="vs"></div>
+    <button class="link" id="addV">+ adicionar tamanho</button>
+    <p class="err" id="pErr" style="margin-top:10px"></p>
+    <button class="btn" id="save">Salvar</button>
+    ${p ? `<button class="btn danger" id="del">Apagar produto</button>` : `<button class="btn line" id="cancel">Cancelar</button>`}`);
+  const vs = $("#vs", sh);
+  const row = v => {
+    const r = document.createElement("div");
+    r.className = "vrow"; r.dataset.id = v?.id || "";
+    r.innerHTML = `<input value="${esc(v?.nome)}" placeholder="Ex.: Masculina G">${v ? `<span class="q">tem ${v.qtd}</span>` : ""}<button aria-label="Remover tamanho">×</button>`;
+    $("button", r).onclick = () => r.remove();
+    vs.appendChild(r);
+  };
+  (p ? p.variantes : [null]).forEach(row);
+  $("#addV", sh).onclick = () => { row(null); vs.lastChild.querySelector("input").focus(); };
+  $("#cancel", sh) && ($("#cancel", sh).onclick = closeSheet);
+  $("#save", sh).onclick = async () => {
+    const data = {
+      nome: $("#pn", sh).value, cor: $("#pc", sh).value, grupo: $("#pg", sh).value, min: parseInt($("#pm", sh).value) || 0,
+      variantes: [...vs.children].map(r => ({ id: r.dataset.id || undefined, nome: $("input", r).value })),
+    };
+    try {
+      setState(p ? await call("PUT", `/api/products/${p.id}`, data) : await call("POST", "/api/products", { ...data, variantes: data.variantes.map(v => v.nome) }));
+      closeSheet(); toast(p ? "Produto atualizado." : "Produto cadastrado.");
+    } catch (err) { $("#pErr", sh).textContent = err.message; }
+  };
+  $("#del", sh) && ($("#del", sh).onclick = async () => {
+    const tot = p.variantes.reduce((a, v) => a + v.qtd, 0);
+    if (!confirm(`Apagar "${p.nome} · ${p.cor}"?${tot ? ` Ele ainda tem ${tot} peças em estoque.` : ""} O histórico de vendas continua salvo.`)) return;
+    try { setState(await call("DELETE", `/api/products/${p.id}`)); closeSheet(); toast("Produto apagado."); }
+    catch (err) { $("#pErr", sh).textContent = err.message; }
+  });
+}
+$("#newProd").onclick = () => prodSheet(null);
+
+/* ---------- conta ---------- */
+$("#chgPass").onclick = () => {
+  const sh = openSheet(`
+    <h2>Trocar minha senha</h2><p class="sub">Use pelo menos 6 caracteres.</p>
+    <label class="field"><span>Senha atual</span><input id="a" type="password" autocomplete="current-password"></label>
+    <label class="field"><span>Nova senha</span><input id="b" type="password" autocomplete="new-password"></label>
+    <p class="err" id="e"></p>
+    <button class="btn" id="ok">Salvar nova senha</button>`);
+  $("#ok", sh).onclick = async () => {
+    try { await call("POST", "/api/senha", { atual: $("#a", sh).value, nova: $("#b", sh).value }); closeSheet(); toast("Senha trocada."); }
+    catch (err) { $("#e", sh).textContent = err.message; }
+  };
+};
+$("#users").onclick = async () => {
+  const sh = openSheet(`
+    <h2>Quem tem acesso</h2><p class="sub">Cada pessoa entra com o próprio usuário. O histórico mostra quem fez cada venda.</p>
+    <div class="card" id="ul" style="padding:4px 14px"></div>
+    <p style="font-size:13px;font-weight:600;margin:16px 0 8px">Dar acesso a outra pessoa</p>
+    <div class="two">
+      <label class="field"><span>Nome</span><input id="un" placeholder="Ex.: Jo"></label>
+      <label class="field"><span>Usuário</span><input id="uu" autocapitalize="none" placeholder="Ex.: jo"></label>
+    </div>
+    <label class="field"><span>Senha inicial</span><input id="up" type="text" autocomplete="off" placeholder="mínimo 6 caracteres"></label>
+    <p class="err" id="ue"></p>
+    <button class="btn green" id="uadd">Criar acesso</button>`);
+  const draw = list => $("#ul", sh).innerHTML = list.map(u => `<div class="row"><span><b>${esc(u.nome)}</b> <small style="color:var(--muted)">@${esc(u.user)}</small></span>${u.user === S.me.user ? `<small style="color:var(--muted)">você</small>` : `<button class="link" data-rm="${esc(u.user)}" style="color:var(--out)">Remover</button>`}</div>`).join("");
+  draw(await call("GET", "/api/usuarios"));
+  $("#ul", sh).addEventListener("click", async e => {
+    const b = e.target.closest("[data-rm]");
+    if (b && confirm(`Tirar o acesso de @${b.dataset.rm}?`)) draw(await call("DELETE", `/api/usuarios/${b.dataset.rm}`));
+  });
+  $("#uadd", sh).onclick = async () => {
+    try {
+      draw(await call("POST", "/api/usuarios", { nome: $("#un", sh).value, user: $("#uu", sh).value, senha: $("#up", sh).value }));
+      ["#un", "#uu", "#up"].forEach(s => $(s, sh).value = ""); $("#ue", sh).textContent = "";
+      toast("Acesso criado.");
+    } catch (err) { $("#ue", sh).textContent = err.message; }
+  };
+};
+$("#logout").onclick = async () => { await call("POST", "/api/logout").catch(() => {}); showLogin(); };
+
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "braven-estoque",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Controle de estoque simples da BRAVEN, com login e senha",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}
